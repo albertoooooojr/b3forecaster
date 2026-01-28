@@ -81,7 +81,6 @@ top_stocks = {
     "VIVT3 - Telefônica": "VIVT3",
     "WEGE3 - WEG": "WEGE3",
     "YDUQ3 - YDUQS": "YDUQ3",
-    # Small Caps
     "Small Cap - 3TENTOS - TTEN3": "TTEN3",
     "Small Cap - ABC BRASIL - ABCB4": "ABCB4",
     "Small Cap - ALLOS - ALOS3": "ALOS3",
