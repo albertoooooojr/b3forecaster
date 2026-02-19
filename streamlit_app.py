@@ -13,7 +13,7 @@ st.markdown("## 📈 B3 (Brazil) Stock Forecast")
 st.markdown("<sub>📈 Previsão de Ações da B3 (Brasil)</sub>", unsafe_allow_html=True)
 
 # ============================
-# Top Stocks (Duplicates Removed)
+# Top Stocks
 # ============================
 top_stocks = {
     "ABEV3 - Ambev": "ABEV3",
@@ -109,6 +109,7 @@ top_stocks = {
     "Small Cap - COPASA - CSMG3": "CSMG3",
     "Small Cap - CURY S/A - CURY3": "CURY3",
     "Small Cap - CVC BRASIL - CVCB3": "CVCB3",
+    "Small Cap - CYRELA REALT - CYRE4": "CYRE4",
     "Small Cap - DESKTOP - DESK3": "DESK3",
     "Small Cap - DIMED - PNVL3": "PNVL3",
     "Small Cap - DIRECIONAL - DIRR3": "DIRR3",
@@ -154,6 +155,7 @@ top_stocks = {
     "Small Cap - QUERO-QUERO - LJQQ3": "LJQQ3",
     "Small Cap - RANDON PART - RAPT4": "RAPT4",
     "Small Cap - RECRUSUL - RCSL3": "RCSL3",
+    "Small Cap - RECRUSUL - RCSL4": "RCSL4",
     "Small Cap - SANEPAR - SAPR11": "SAPR11",
     "Small Cap - SER EDUCA - SEER3": "SEER3",
     "Small Cap - SIMPAR - SIMH3": "SIMH3",
@@ -191,25 +193,24 @@ st.subheader("🔎 RSI Scanner - Overbought/oversold stocks")
 st.markdown("<sub>🔎 Scanner RSI - Ações Sobrecompradas/Sobrevendidas</sub>", unsafe_allow_html=True)
 
 results = []
-for name, code in top_stocks.items():
+for name, code in top_stocks.items():  # AGORA PROCESSA TODOS OS ATIVOS (Blue Chips + Small Caps)
     try:
         df = yf.download(code + ".SA", period="6mo", interval="1d", progress=False)
         if df.empty:
             continue
         df["RSI"] = calculate_rsi(df["Close"])
         last_rsi = df["RSI"].iloc[-1]
-        last_price = df["Close"].iloc[-1]
         status = ""
         if last_rsi >= 70:
             status = "🔴 Overbought"
         elif last_rsi <= 30:
             status = "🟢 Oversold"
         if status:
-            results.append([name, round(last_price, 2), round(last_rsi, 2), status])
+            results.append([name, round(last_rsi, 2), status])
     except:
         continue
 
-df_rsi = pd.DataFrame(results, columns=["Stock", "Price", "RSI", "Status"])
+df_rsi = pd.DataFrame(results, columns=["Stock", "RSI", "Status"])
 st.dataframe(df_rsi, use_container_width=True)
 
 # ============================
@@ -255,7 +256,7 @@ else:
     future = model.make_future_dataframe(periods=90)
     forecast = model.predict(future)
 
-    st.subheader(f"🔮 Forecast for the next {future_days} dias")
+    st.subheader(f"🔮 Forecast for the next {future_days} days")
     st.markdown(f"<sub>🔮 Previsão para os próximos {future_days} dias</sub>", unsafe_allow_html=True)
 
     fig1 = model.plot(forecast)
