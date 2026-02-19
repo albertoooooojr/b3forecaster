@@ -185,7 +185,6 @@ def calculate_rsi(series, window=14):
     rsi = 100 - (100 / (1 + rs))
     return rsi
 
-
 # ============================
 # RSI Scanner
 # ============================
@@ -193,25 +192,46 @@ st.subheader("🔎 RSI Scanner - Overbought/oversold stocks")
 st.markdown("<sub>🔎 Scanner RSI - Ações Sobrecompradas/Sobrevendidas</sub>", unsafe_allow_html=True)
 
 results = []
-for name, code in top_stocks.items():  # AGORA PROCESSA TODOS OS ATIVOS (Blue Chips + Small Caps)
-    try:
-        df = yf.download(code + ".SA", period="6mo", interval="1d", progress=False)
-        if df.empty:
-            continue
-        df["RSI"] = calculate_rsi(df["Close"])
-        last_rsi = df["RSI"].iloc[-1]
-        status = ""
-        if last_rsi >= 70:
-            status = "🔴 Overbought"
-        elif last_rsi <= 30:
-            status = "🟢 Oversold"
-        if status:
-            results.append([name, round(last_rsi, 2), status])
-    except:
-        continue
 
-df_rsi = pd.DataFrame(results, columns=["Stock", "RSI", "Status"])
-st.dataframe(df_rsi, use_container_width=True)
+with st.spinner("🔄 Analisando ativos..."):
+    for name, code in top_stocks.items():
+        try:
+            df = yf.download(code + ".SA", period="6mo", interval="1d", progress=False)
+            if df.empty:
+                continue
+
+            df["RSI"] = calculate_rsi(df["Close"])
+            last_rsi = df["RSI"].iloc[-1]
+            last_price = df["Close"].iloc[-1]
+
+            status = ""
+            if last_rsi >= 70:
+                status = "🔴 Overbought"
+            elif last_rsi <= 30:
+                status = "🟢 Oversold"
+
+            if status and last_price >= min_price:
+                results.append([
+                    name,
+                    round(last_price, 2),
+                    round(last_rsi, 2),
+                    status
+                ])
+        except:
+            continue
+
+if results:
+    df_rsi = pd.DataFrame(
+        results,
+        columns=["Stock", "Last Price (R$)", "RSI", "Status"]
+    )
+
+    df_rsi = df_rsi.sort_values(by="RSI", ascending=False)
+
+    st.dataframe(df_rsi, use_container_width=True)
+else:
+    st.info("Nenhuma ação encontrada com os critérios atuais.")
+
 
 # ============================
 # Select stock
